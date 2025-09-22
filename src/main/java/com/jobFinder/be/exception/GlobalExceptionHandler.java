@@ -18,6 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GlobalExceptionHandler {
 
+  @ExceptionHandler(ResourceNotFoundException.class)
+  public ResponseEntity<WebResponse<String>> handleResourceNotFoundException(ResourceNotFoundException exception) {
+    WebResponse<String> response = WebResponse.error(exception.getMessage());
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+  }
+
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<WebResponse<Map<String, String>>> handleMethodArgumentNotValidException(
       MethodArgumentNotValidException exception) {
