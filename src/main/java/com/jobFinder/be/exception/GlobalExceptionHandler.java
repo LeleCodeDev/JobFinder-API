@@ -18,6 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class GlobalExceptionHandler {
 
+  @ExceptionHandler(ForbiddenException.class)
+  public ResponseEntity<WebResponse<String>> handleForbbidenException(ForbiddenException exception) {
+    WebResponse<String> response = WebResponse.error(exception.getMessage());
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+  }
+
   @ExceptionHandler(ResourceNotFoundException.class)
   public ResponseEntity<WebResponse<String>> handleResourceNotFoundException(ResourceNotFoundException exception) {
     WebResponse<String> response = WebResponse.error(exception.getMessage());

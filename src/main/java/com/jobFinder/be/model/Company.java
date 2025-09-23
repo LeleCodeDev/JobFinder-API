@@ -23,6 +23,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,7 +33,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name = "companies")
+@Table(name = "companies", uniqueConstraints = @UniqueConstraint(columnNames = "owner_id"))
 @EntityListeners(AuditingEntityListener.class)
 @Builder
 public class Company {
@@ -56,12 +57,14 @@ public class Company {
 
   private String banner;
 
+  @Column(nullable = false)
   private String location;
 
+  @Column(nullable = false)
   private String phone;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "industry_id", referencedColumnName = "id")
+  @JoinColumn(name = "industry_id", referencedColumnName = "id", nullable = false)
   private Industry industry;
 
   @Column(name = "founded_date")
