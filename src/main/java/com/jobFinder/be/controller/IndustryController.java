@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +38,7 @@ public class IndustryController {
   }
 
   @PostMapping
+  @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
   public ResponseEntity<WebResponse<IndustryResponse>> createIndustry(@RequestBody @Valid IndustryRequest request) {
     IndustryResponse industry = industryService.create(request);
     WebResponse<IndustryResponse> response = WebResponse.success("Industry created successfully", industry);
@@ -44,6 +46,7 @@ public class IndustryController {
   }
 
   @PutMapping("/{id}")
+  @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
   public ResponseEntity<WebResponse<IndustryResponse>> updateIndustry(@PathVariable Long id,
       @RequestBody @Valid IndustryRequest request) {
 
@@ -53,6 +56,7 @@ public class IndustryController {
   }
 
   @DeleteMapping("/{id}")
+  @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
   public ResponseEntity<WebResponse<Void>> deleteIndustry(@PathVariable Long id) {
     industryService.delete(id);
     WebResponse<Void> response = WebResponse.success("Industry deleted successfully");

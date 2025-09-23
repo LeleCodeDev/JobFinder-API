@@ -2,6 +2,7 @@ package com.jobFinder.be.dto.auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ public class RegisterRequest {
   private String email;
 
   @NotBlank(message = "Password is required")
+  @Size(min = 6, message = "Password must be atleast 6 charactes long")
   private String password;
 
   @NotBlank(message = "Phone number is required")

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.jobFinder.be.dto.WebResponse;
 import com.jobFinder.be.dto.auth.AuthResponse;
+import com.jobFinder.be.dto.auth.LoginRequest;
 import com.jobFinder.be.dto.auth.RegisterRequest;
 import com.jobFinder.be.service.AuthService;
 
@@ -27,5 +28,12 @@ public class AuthController {
     AuthResponse auth = authService.register(request);
     WebResponse<AuthResponse> response = WebResponse.success("Account successfully registered", auth);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
+
+  @PostMapping("/login")
+  public ResponseEntity<WebResponse<AuthResponse>> login(@RequestBody @Valid LoginRequest request) {
+    AuthResponse auth = authService.login(request);
+    WebResponse<AuthResponse> response = WebResponse.success("Login successful", auth);
+    return ResponseEntity.ok(response);
   }
 }

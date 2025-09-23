@@ -2,8 +2,10 @@ package com.jobFinder.be.mapper;
 
 import org.springframework.stereotype.Component;
 
+import com.jobFinder.be.dto.company.CompanyFetchResponse;
 import com.jobFinder.be.dto.company.CompanyRequest;
 import com.jobFinder.be.dto.company.CompanyResponse;
+import com.jobFinder.be.dto.user.OwnerResponse;
 import com.jobFinder.be.enums.ActiveStatus;
 import com.jobFinder.be.model.Company;
 import com.jobFinder.be.model.Industry;
@@ -17,7 +19,7 @@ public class CompanyMapper {
 
   private final IndustryMapper industryMapper;
 
-  public CompanyResponse toResponse(Company company, Industry industry) {
+  public CompanyResponse toResponse(Company company) {
     return CompanyResponse.builder()
         .id(company.getId())
         .name(company.getName())
@@ -27,7 +29,30 @@ public class CompanyMapper {
         .banner(company.getBanner())
         .location(company.getLocation())
         .phone(company.getPhone())
-        .industry(industryMapper.toResponse(industry))
+        .industry(industryMapper.toResponse(company.getIndustry()))
+        .foundedDate(company.getFoundedDate())
+        .verified(company.getVerified())
+        .status(company.getStatus())
+        .createdAt(company.getCreatedAt())
+        .updatedAt(company.getUpdatedAt())
+        .build();
+  }
+
+  public CompanyFetchResponse toFetchResponse(Company company) {
+    return CompanyFetchResponse.builder()
+        .id(company.getId())
+        .owner(OwnerResponse.builder()
+            .id(company.getOwner().getId())
+            .username(company.getOwner().getUsername())
+            .build())
+        .name(company.getName())
+        .description(company.getDescription())
+        .website(company.getWebsite())
+        .logo(company.getLogo())
+        .banner(company.getBanner())
+        .location(company.getLocation())
+        .phone(company.getPhone())
+        .industry(industryMapper.toResponse(company.getIndustry()))
         .foundedDate(company.getFoundedDate())
         .verified(company.getVerified())
         .status(company.getStatus())
