@@ -29,7 +29,6 @@ public class CompanyController {
   private final CompanyService companyService;
 
   @PostMapping
-  @PreAuthorize("hasRole('JOBSEEKER')")
   public ResponseEntity<WebResponse<CompanyResponse>> createCompany(@RequestBody @Valid CompanyRequest request) {
     CompanyResponse company = companyService.create(request);
     WebResponse<CompanyResponse> response = WebResponse.success("Company successfully created", company);
@@ -37,7 +36,7 @@ public class CompanyController {
   }
 
   @PutMapping("/{id}")
-  @PreAuthorize("hasRole('EMPLOYER')")
+  @PreAuthorize("hasRole('USER')")
   public ResponseEntity<WebResponse<CompanyResponse>> updateCompany(@PathVariable Long id,
       @RequestBody @Valid CompanyRequest request) {
     CompanyResponse company = companyService.update(id, request);
@@ -46,6 +45,7 @@ public class CompanyController {
   }
 
   @GetMapping()
+  @PreAuthorize("hasRole('USER')")
   public ResponseEntity<WebResponse<List<CompanyResponse>>> getAllCompanies() {
     List<CompanyResponse> companies = companyService.getAll();
     WebResponse<List<CompanyResponse>> response = WebResponse.success("All companies successfully fetched",

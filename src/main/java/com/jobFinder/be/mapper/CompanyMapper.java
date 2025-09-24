@@ -1,16 +1,11 @@
 package com.jobFinder.be.mapper;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Component;
 
-import com.jobFinder.be.dto.company.CompanyFetchResponse;
 import com.jobFinder.be.dto.company.CompanyRequest;
 import com.jobFinder.be.dto.company.CompanyResponse;
 import com.jobFinder.be.enums.ActiveStatus;
 import com.jobFinder.be.model.Company;
-import com.jobFinder.be.model.Employee;
 import com.jobFinder.be.model.Industry;
 
 import lombok.RequiredArgsConstructor;
@@ -40,32 +35,8 @@ public class CompanyMapper {
         .build();
   }
 
-  public CompanyFetchResponse toFetchResponse(Company company) {
-    return CompanyFetchResponse.builder()
-        .id(company.getId())
-        // .owner(OwnerResponse.builder()
-        // .id(company.getOwner().getId())
-        // .username(company.getOwner().getUsername())
-        // .build())
-        .name(company.getName())
-        .description(company.getDescription())
-        .website(company.getWebsite())
-        .logo(company.getLogo())
-        .banner(company.getBanner())
-        .location(company.getLocation())
-        .phone(company.getPhone())
-        .industry(industryMapper.toResponse(company.getIndustry()))
-        .foundedDate(company.getFoundedDate())
-        .verified(company.getVerified())
-        .status(company.getStatus())
-        .createdAt(company.getCreatedAt())
-        .updatedAt(company.getUpdatedAt())
-        .build();
-  }
-
   public Company toEntity(CompanyRequest request, Industry industry) {
     return Company.builder()
-        // .owner(owner)
         .name(request.getName())
         .description(request.getDescription())
         .website(request.getWebsite())

@@ -30,6 +30,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
   @Query("UPDATE Employee e " +
       "SET e.status = :status " +
       "WHERE e.company.id = :companyId AND e.role <> :ownerRole")
-  void deactivateAllByCompanyIdExcept(@Param("companyId") Long companyId, @Param("status") ActiveStatus status,
+  void updateAllStatusByCompanyIdExcept(@Param("companyId") Long companyId, @Param("status") ActiveStatus status,
       @Param("ownerRole") BusinessRole ownerRole);
 }

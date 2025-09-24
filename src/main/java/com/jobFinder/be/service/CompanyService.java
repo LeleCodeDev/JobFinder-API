@@ -14,6 +14,7 @@ import com.jobFinder.be.enums.ActiveStatus;
 import com.jobFinder.be.enums.BusinessRole;
 import com.jobFinder.be.exception.ForbiddenException;
 import com.jobFinder.be.exception.InactiveResourceException;
+import com.jobFinder.be.exception.ResourceAlreadyTakenException;
 import com.jobFinder.be.exception.ResourceNotFoundException;
 import com.jobFinder.be.mapper.CompanyMapper;
 import com.jobFinder.be.model.Company;
@@ -40,6 +41,10 @@ public class CompanyService {
 
   @Transactional
   public CompanyResponse create(CompanyRequest request) {
+    companyRepository.findByName(request.getName()).ifPresent(c -> {
+      throw new ResourceAlreadyTakenException("Company name already exists");
+    });
+
     User user = getAuthenticatedUser();
 
     Industry industry = industryRepository.findById(request.getIndustryId())
@@ -82,11 +87,16 @@ public class CompanyService {
       throw new InactiveResourceException("Company is inactive");
     }
 
-    if (!company.getIndustry().getId().equals(request.getIndustryId())) {
-      Industry industry = industryRepository.findById(request.getIndustryId())
-          .orElseThrow(() -> new ResourceNotFoundException("Industry not found with ID: " + request.getIndustryId()));
-      company.setIndustry(industry);
+    if (!company.getName().equals(request.getName())) {
+      companyRepository.findByName(request.getName())
+          .ifPresent(c -> {
+            throw new ResourceAlreadyTakenException("Company name already exists");
+          });
     }
+
+    Industry industry = industryRepository.findById(request.getIndustryId())
+        .orElseThrow(() -> new ResourceNotFoundException("Industry not found with ID: " + request.getIndustryId()));
+    company.setIndustry(industry);
 
     companyMapper.updateEntity(company, request);
 
@@ -112,7 +122,7 @@ public class CompanyService {
   }
 
   @Transactional
-  public void deactivate(Long id, String password) {
+  public CompanyResponse deactivateCompany(Long id, String password) {
     User user = getAuthenticatedUser();
 
     if (!passwordEncoder.matches(password, user.getPassword())) {
@@ -130,14 +140,60 @@ public class CompanyService {
     }
 
     if (!(employee.getRole() == BusinessRole.OWNER)) {
-      throw new ForbiddenException("You are not allowed to delete this company");
+      throw new ForbiddenException("You are not allowed to deactivate this company");
     }
 
-    employeeRepository.deactivateAllByCompanyIdExcept(id, ActiveStatus.INACTIVE, BusinessRole.OWNER);
+    employeeRepository.updateAllStatusByCompanyIdExcept(id, ActiveStatus.INACTIVE, BusinessRole.OWNER);
 
     company.setStatus(ActiveStatus.INACTIVE);
-    companyRepository.save(company);
+    Company updatedCompany = companyRepository.save(company);
+
+    return companyMapper.toResponse(updatedCompany);
   }
+
+  @Transactional
+  public CompanyResponse activateCompany(Long id, String password) {
+    User user = getAuthenticatedUser();
+
+    if (!passwordEncoder.matches(password, user.getPassword())) {
+      throw new ForbiddenException("Invalid password");
+    }
+
+    Company company = companyRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Company not found with ID: " + id));
+
+    Employee employee = employeeRepository.findByUserIdAndCompanyId(user.getId(), id)
+        .orElseThrow(() -> new ForbiddenException("You are not an employee in this company"));
+
+    if (employee.getStatus() != ActiveStatus.ACTIVE) {
+      throw new InactiveResourceException("Your employee account is inactive");
+    }
+
+    if (!(employee.getRole() == BusinessRole.OWNER)) {
+      throw new ForbiddenException("You are not allowed to activate this company");
+    }
+
+    employeeRepository.updateAllStatusByCompanyIdExcept(id, ActiveStatus.ACTIVE, BusinessRole.OWNER);
+
+    company.setStatus(ActiveStatus.ACTIVE);
+    Company updatedCompany = companyRepository.save(company);
+
+    return companyMapper.toResponse(updatedCompany);
+  }
+
+  // @Transactional
+  // public CompanyResponse banCompany(Long id, String password) {
+  //
+  // User user = getAuthenticatedUser();
+  //
+  // if (!passwordEncoder.matches(password, user.getPassword())) {
+  // throw new ForbiddenException("Invalid password");
+  // }
+  //
+  // Company company = companyRepository.findById(id)
+  // .orElseThrow(() -> new ResourceNotFoundException("Company not found with ID:
+  // " + id));
+  // }
 
   private User getAuthenticatedUser() {
     String email = SecurityContextHolder.getContext().getAuthentication().getName();
