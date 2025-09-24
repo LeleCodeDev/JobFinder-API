@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jobFinder.be.dto.WebResponse;
-import com.jobFinder.be.dto.company.CompanyFetchResponse;
 import com.jobFinder.be.dto.company.CompanyRequest;
 import com.jobFinder.be.dto.company.CompanyResponse;
 import com.jobFinder.be.service.CompanyService;
@@ -47,17 +46,17 @@ public class CompanyController {
   }
 
   @GetMapping()
-  public ResponseEntity<WebResponse<List<CompanyFetchResponse>>> getAllCompanies() {
-    List<CompanyFetchResponse> companies = companyService.getAll();
-    WebResponse<List<CompanyFetchResponse>> response = WebResponse.success("All companies successfully fetched",
+  public ResponseEntity<WebResponse<List<CompanyResponse>>> getAllCompanies() {
+    List<CompanyResponse> companies = companyService.getAll();
+    WebResponse<List<CompanyResponse>> response = WebResponse.success("All companies successfully fetched",
         companies);
     return ResponseEntity.ok(response);
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<WebResponse<CompanyFetchResponse>> getById(@PathVariable Long id) {
-    CompanyFetchResponse company = companyService.getById(id);
-    WebResponse<CompanyFetchResponse> response = WebResponse.success("Company successfully fetched", company);
+  public ResponseEntity<WebResponse<CompanyResponse>> getById(@PathVariable Long id) {
+    CompanyResponse company = companyService.getById(id);
+    WebResponse<CompanyResponse> response = WebResponse.success("Company successfully fetched", company);
     return ResponseEntity.ok(response);
   }
 }

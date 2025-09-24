@@ -16,11 +16,12 @@ import lombok.RequiredArgsConstructor;
 public class AuthMapper {
   private final PasswordEncoder passwordEncoder;
 
-  public AuthResponse toResponse(String token, String email, String role) {
+  public AuthResponse toResponse(String token, User user) {
     return AuthResponse.builder()
+        .id(user.getId())
         .token(token)
-        .email(email)
-        .role(role)
+        .email(user.getEmail())
+        .role(user.getRole().name())
         .build();
   }
 
@@ -30,7 +31,7 @@ public class AuthMapper {
         .email(request.getEmail())
         .password(passwordEncoder.encode(request.getPassword()))
         .phoneNumber(request.getPhoneNumber())
-        .role(UserRole.JOBSEEKER)
+        .role(UserRole.USER)
         .status(ActiveStatus.ACTIVE)
         .build();
   }

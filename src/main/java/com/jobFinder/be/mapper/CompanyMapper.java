@@ -1,15 +1,17 @@
 package com.jobFinder.be.mapper;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
 
 import com.jobFinder.be.dto.company.CompanyFetchResponse;
 import com.jobFinder.be.dto.company.CompanyRequest;
 import com.jobFinder.be.dto.company.CompanyResponse;
-import com.jobFinder.be.dto.user.OwnerResponse;
 import com.jobFinder.be.enums.ActiveStatus;
 import com.jobFinder.be.model.Company;
+import com.jobFinder.be.model.Employee;
 import com.jobFinder.be.model.Industry;
-import com.jobFinder.be.model.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,10 +43,10 @@ public class CompanyMapper {
   public CompanyFetchResponse toFetchResponse(Company company) {
     return CompanyFetchResponse.builder()
         .id(company.getId())
-        .owner(OwnerResponse.builder()
-            .id(company.getOwner().getId())
-            .username(company.getOwner().getUsername())
-            .build())
+        // .owner(OwnerResponse.builder()
+        // .id(company.getOwner().getId())
+        // .username(company.getOwner().getUsername())
+        // .build())
         .name(company.getName())
         .description(company.getDescription())
         .website(company.getWebsite())
@@ -61,9 +63,9 @@ public class CompanyMapper {
         .build();
   }
 
-  public Company toEntity(CompanyRequest request, Industry industry, User owner) {
+  public Company toEntity(CompanyRequest request, Industry industry) {
     return Company.builder()
-        .owner(owner)
+        // .owner(owner)
         .name(request.getName())
         .description(request.getDescription())
         .website(request.getWebsite())

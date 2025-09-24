@@ -21,6 +21,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -30,6 +31,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "user_profiles")
 @EntityListeners(AuditingEntityListener.class)
+@Builder
 public class UserProfile {
 
   @Id
@@ -37,21 +39,19 @@ public class UserProfile {
   private Long id;
 
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "owner_id", referencedColumnName = "id", nullable = false)
+  @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
   private User user;
 
   @Column(nullable = false)
   private String fullname;
 
-  @Column(name = "date_of_birth", nullable = false)
+  @Column(name = "date_of_birth")
   private LocalDate dateOfBirth;
 
   @Enumerated(EnumType.STRING)
   private Gender gender;
 
-  private String phone;
-
-  private String addres;
+  private String address;
 
   @Column(columnDefinition = "TEXT")
   private String bio;

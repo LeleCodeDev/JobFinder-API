@@ -2,10 +2,13 @@ package com.jobFinder.be.dto.company;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.jobFinder.be.dto.employee.EmployeeCompanyResponse;
 import com.jobFinder.be.dto.industry.IndustryResponse;
 import com.jobFinder.be.enums.ActiveStatus;
+import com.jobFinder.be.model.Employee;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
