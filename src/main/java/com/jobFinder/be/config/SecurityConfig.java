@@ -2,6 +2,7 @@ package com.jobFinder.be.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -31,7 +32,11 @@ public class SecurityConfig {
     return http
         .csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(
-            request -> request.requestMatchers("/api/auth/**").permitAll().anyRequest().authenticated())
+            request -> request.requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/companies/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/industries/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/job-categories/**").permitAll()
+                .anyRequest().authenticated())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .build();
