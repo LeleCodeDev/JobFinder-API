@@ -50,6 +50,7 @@ public class Employee {
   @Enumerated(EnumType.STRING)
   private BusinessRole role;
 
+  @Enumerated(EnumType.STRING)
   private ActiveStatus status;
 
   @CreatedDate

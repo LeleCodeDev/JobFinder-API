@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jobFinder.be.dto.WebResponse;
 import com.jobFinder.be.dto.company.CompanyRequest;
 import com.jobFinder.be.dto.company.CompanyResponse;
+import com.jobFinder.be.dto.company.PasswordCompanyRequest;
 import com.jobFinder.be.service.CompanyService;
 
 import jakarta.validation.Valid;
@@ -37,7 +38,7 @@ public class CompanyController {
 
   @PutMapping("/{id}")
   @PreAuthorize("hasRole('USER')")
-  public ResponseEntity<WebResponse<CompanyResponse>> updateCompany(@PathVariable Long id,
+  public ResponseEntity<WebResponse<CompanyResponse>> updateCompany(@PathVariable @Valid Long id,
       @RequestBody @Valid CompanyRequest request) {
     CompanyResponse company = companyService.update(id, request);
     WebResponse<CompanyResponse> response = WebResponse.success("Company successfully updated", company);
@@ -54,9 +55,43 @@ public class CompanyController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<WebResponse<CompanyResponse>> getById(@PathVariable Long id) {
+  public ResponseEntity<WebResponse<CompanyResponse>> getCompanyById(@PathVariable Long id) {
     CompanyResponse company = companyService.getById(id);
     WebResponse<CompanyResponse> response = WebResponse.success("Company successfully fetched", company);
+    return ResponseEntity.ok(response);
+  }
+
+  @PutMapping("{id}/deactivate")
+  @PreAuthorize("hasRole('USER')")
+  public ResponseEntity<WebResponse<CompanyResponse>> deactivateCompany(@PathVariable Long id,
+      @RequestBody @Valid PasswordCompanyRequest request) {
+    CompanyResponse company = companyService.deactivate(id, request.getPassword());
+    WebResponse<CompanyResponse> response = WebResponse.success("Company successfully deactivated", company);
+    return ResponseEntity.ok(response);
+  }
+
+  @PutMapping("{id}/activate")
+  @PreAuthorize("hasRole('USER')")
+  public ResponseEntity<WebResponse<CompanyResponse>> activateCompany(@PathVariable Long id,
+      @RequestBody @Valid PasswordCompanyRequest request) {
+    CompanyResponse company = companyService.activate(id, request.getPassword());
+    WebResponse<CompanyResponse> response = WebResponse.success("Company successfully activated", company);
+    return ResponseEntity.ok(response);
+  }
+
+  @PutMapping("{id}/ban")
+  @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
+  public ResponseEntity<WebResponse<CompanyResponse>> banCompany(@PathVariable Long id) {
+    CompanyResponse company = companyService.ban(id);
+    WebResponse<CompanyResponse> response = WebResponse.success("Company successfully banned", company);
+    return ResponseEntity.ok(response);
+  }
+
+  @PutMapping("{id}/unban")
+  @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
+  public ResponseEntity<WebResponse<CompanyResponse>> unbanCompany(@PathVariable Long id) {
+    CompanyResponse company = companyService.unban(id);
+    WebResponse<CompanyResponse> response = WebResponse.success("Company successfully unbanned", company);
     return ResponseEntity.ok(response);
   }
 }

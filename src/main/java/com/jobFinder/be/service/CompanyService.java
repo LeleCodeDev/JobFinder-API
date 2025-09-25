@@ -122,7 +122,7 @@ public class CompanyService {
   }
 
   @Transactional
-  public CompanyResponse deactivateCompany(Long id, String password) {
+  public CompanyResponse deactivate(Long id, String password) {
     User user = getAuthenticatedUser();
 
     if (!passwordEncoder.matches(password, user.getPassword())) {
@@ -152,7 +152,7 @@ public class CompanyService {
   }
 
   @Transactional
-  public CompanyResponse activateCompany(Long id, String password) {
+  public CompanyResponse activate(Long id, String password) {
     User user = getAuthenticatedUser();
 
     if (!passwordEncoder.matches(password, user.getPassword())) {
@@ -181,19 +181,31 @@ public class CompanyService {
     return companyMapper.toResponse(updatedCompany);
   }
 
-  // @Transactional
-  // public CompanyResponse banCompany(Long id, String password) {
-  //
-  // User user = getAuthenticatedUser();
-  //
-  // if (!passwordEncoder.matches(password, user.getPassword())) {
-  // throw new ForbiddenException("Invalid password");
-  // }
-  //
-  // Company company = companyRepository.findById(id)
-  // .orElseThrow(() -> new ResourceNotFoundException("Company not found with ID:
-  // " + id));
-  // }
+  @Transactional
+  public CompanyResponse ban(Long id) {
+    Company company = companyRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Company not found with ID:" + id));
+
+    company.setStatus(ActiveStatus.BANNED);
+    Company updatedCompany = companyRepository.save(company);
+
+    employeeRepository.updateAllStatusByCompanyId(id, ActiveStatus.BANNED);
+
+    return companyMapper.toResponse(updatedCompany);
+  }
+
+  @Transactional
+  public CompanyResponse unban(Long id) {
+    Company company = companyRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException("Company not found with ID:" + id));
+
+    company.setStatus(ActiveStatus.ACTIVE);
+    Company updatedCompany = companyRepository.save(company);
+
+    employeeRepository.updateAllStatusByCompanyId(id, ActiveStatus.ACTIVE);
+
+    return companyMapper.toResponse(updatedCompany);
+  }
 
   private User getAuthenticatedUser() {
     String email = SecurityContextHolder.getContext().getAuthentication().getName();

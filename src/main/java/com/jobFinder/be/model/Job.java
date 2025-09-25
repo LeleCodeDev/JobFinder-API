@@ -79,7 +79,8 @@ public class Job {
 
   public enum JobStatus {
     OPEN,
-    CLOSE
+    CLOSE,
+    BANNED
   }
 
   public enum JobType {
