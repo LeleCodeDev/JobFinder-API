@@ -3,7 +3,6 @@ package com.jobFinder.be.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,7 @@ import com.jobFinder.be.model.User;
 import com.jobFinder.be.repository.CompanyRepository;
 import com.jobFinder.be.repository.EmployeeRepository;
 import com.jobFinder.be.repository.IndustryRepository;
-import com.jobFinder.be.repository.UserRepository;
+import com.jobFinder.be.util.UserUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 public class CompanyService {
 
   private final CompanyRepository companyRepository;
-  private final UserRepository userRepository;
+  private final UserUtil userUtil;
   private final IndustryRepository industryRepository;
   private final EmployeeRepository employeeRepository;
   private final CompanyMapper companyMapper;
@@ -45,7 +44,7 @@ public class CompanyService {
       throw new ResourceAlreadyTakenException("Company name already exists");
     });
 
-    User user = getAuthenticatedUser();
+    User user = userUtil.getAuthenticatedUser();
 
     Industry industry = industryRepository.findById(request.getIndustryId())
         .orElseThrow(() -> new ResourceNotFoundException("Industry not found with ID: " + request.getIndustryId()));
@@ -67,7 +66,7 @@ public class CompanyService {
 
   @Transactional
   public CompanyResponse update(Long id, CompanyRequest request) {
-    User user = getAuthenticatedUser();
+    User user = userUtil.getAuthenticatedUser();
 
     Company company = companyRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Company not found with ID: " + id));
@@ -106,7 +105,13 @@ public class CompanyService {
 
   @Transactional(readOnly = true)
   public List<CompanyResponse> getAll() {
-    List<Company> companies = companyRepository.findAllByStatus(ActiveStatus.ACTIVE);
+    User user = userUtil.getAuthenticatedUserOrNull();
+
+    List<Company> companies = user != null && userUtil.isAdmin(user)
+        ? companyRepository.findAll()
+        : companyRepository.findAllByStatusAndIndustry_Status(
+            ActiveStatus.ACTIVE,
+            ActiveStatus.ACTIVE);
 
     return companies.stream()
         .map(companyMapper::toResponse)
@@ -115,15 +120,28 @@ public class CompanyService {
 
   @Transactional(readOnly = true)
   public CompanyResponse getById(Long id) {
+    User user = userUtil.getAuthenticatedUserOrNull();
+
     Company company = companyRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Company not found with ID: " + id));
+
+    boolean restricted = company.getStatus() != ActiveStatus.ACTIVE
+        || company.getIndustry().getStatus() != ActiveStatus.ACTIVE;
+
+    if (restricted) {
+      if (user == null ||
+          (!userUtil.isAdmin(user) &&
+              !employeeRepository.existsByUserIdAndCompanyId(user.getId(), id))) {
+        throw new ResourceNotFoundException("Company not found with ID: " + id);
+      }
+    }
 
     return companyMapper.toResponse(company);
   }
 
   @Transactional
   public CompanyResponse deactivate(Long id, String password) {
-    User user = getAuthenticatedUser();
+    User user = userUtil.getAuthenticatedUser();
 
     if (!passwordEncoder.matches(password, user.getPassword())) {
       throw new ForbiddenException("Invalid password");
@@ -153,7 +171,7 @@ public class CompanyService {
 
   @Transactional
   public CompanyResponse activate(Long id, String password) {
-    User user = getAuthenticatedUser();
+    User user = userUtil.getAuthenticatedUser();
 
     if (!passwordEncoder.matches(password, user.getPassword())) {
       throw new ForbiddenException("Invalid password");
@@ -207,9 +225,4 @@ public class CompanyService {
     return companyMapper.toResponse(updatedCompany);
   }
 
-  private User getAuthenticatedUser() {
-    String email = SecurityContextHolder.getContext().getAuthentication().getName();
-    return userRepository.findByEmail(email)
-        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-  }
 }

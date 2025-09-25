@@ -30,6 +30,7 @@ public class CompanyController {
   private final CompanyService companyService;
 
   @PostMapping
+  @PreAuthorize("hasRole('USER')")
   public ResponseEntity<WebResponse<CompanyResponse>> createCompany(@RequestBody @Valid CompanyRequest request) {
     CompanyResponse company = companyService.create(request);
     WebResponse<CompanyResponse> response = WebResponse.success("Company successfully created", company);
@@ -38,7 +39,7 @@ public class CompanyController {
 
   @PutMapping("/{id}")
   @PreAuthorize("hasRole('USER')")
-  public ResponseEntity<WebResponse<CompanyResponse>> updateCompany(@PathVariable @Valid Long id,
+  public ResponseEntity<WebResponse<CompanyResponse>> updateCompany(@PathVariable Long id,
       @RequestBody @Valid CompanyRequest request) {
     CompanyResponse company = companyService.update(id, request);
     WebResponse<CompanyResponse> response = WebResponse.success("Company successfully updated", company);
@@ -46,7 +47,7 @@ public class CompanyController {
   }
 
   @GetMapping()
-  @PreAuthorize("hasRole('USER')")
+  @PreAuthorize("permitAll()")
   public ResponseEntity<WebResponse<List<CompanyResponse>>> getAllCompanies() {
     List<CompanyResponse> companies = companyService.getAll();
     WebResponse<List<CompanyResponse>> response = WebResponse.success("All companies successfully fetched",
@@ -55,13 +56,14 @@ public class CompanyController {
   }
 
   @GetMapping("/{id}")
+  @PreAuthorize("permitAll()")
   public ResponseEntity<WebResponse<CompanyResponse>> getCompanyById(@PathVariable Long id) {
     CompanyResponse company = companyService.getById(id);
     WebResponse<CompanyResponse> response = WebResponse.success("Company successfully fetched", company);
     return ResponseEntity.ok(response);
   }
 
-  @PutMapping("{id}/deactivate")
+  @PutMapping("/{id}/deactivate")
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<WebResponse<CompanyResponse>> deactivateCompany(@PathVariable Long id,
       @RequestBody @Valid PasswordCompanyRequest request) {
@@ -70,7 +72,7 @@ public class CompanyController {
     return ResponseEntity.ok(response);
   }
 
-  @PutMapping("{id}/activate")
+  @PutMapping("/{id}/activate")
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<WebResponse<CompanyResponse>> activateCompany(@PathVariable Long id,
       @RequestBody @Valid PasswordCompanyRequest request) {
@@ -79,7 +81,7 @@ public class CompanyController {
     return ResponseEntity.ok(response);
   }
 
-  @PutMapping("{id}/ban")
+  @PutMapping("/{id}/ban")
   @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
   public ResponseEntity<WebResponse<CompanyResponse>> banCompany(@PathVariable Long id) {
     CompanyResponse company = companyService.ban(id);
@@ -87,7 +89,7 @@ public class CompanyController {
     return ResponseEntity.ok(response);
   }
 
-  @PutMapping("{id}/unban")
+  @PutMapping("/{id}/unban")
   @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
   public ResponseEntity<WebResponse<CompanyResponse>> unbanCompany(@PathVariable Long id) {
     CompanyResponse company = companyService.unban(id);

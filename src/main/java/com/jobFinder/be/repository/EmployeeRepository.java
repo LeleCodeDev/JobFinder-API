@@ -23,6 +23,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
   Optional<Employee> findByUserIdAndCompanyId(Long userId, Long companyId);
 
+  boolean existsByUserIdAndCompanyId(Long userId, Long companyId);
+
   boolean existsByIdAndStatus(Long id, ActiveStatus status);
 
   @Modifying

@@ -1,4 +1,4 @@
-package com.jobFinder.be.dto.industry;
+package com.jobFinder.be.dto.jobCategory;
 
 import java.time.LocalDateTime;
 
@@ -10,11 +10,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 @Builder
-public class IndustryResponse {
+public class JobCategoryResponse {
 
   private Long id;
 

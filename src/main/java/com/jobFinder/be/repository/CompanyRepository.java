@@ -18,5 +18,5 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
 
   Optional<Company> findByIdAndStatus(Long id, ActiveStatus status);
 
-  List<Company> findAllByStatus(ActiveStatus status);
+  List<Company> findAllByStatusAndIndustry_Status(ActiveStatus status, ActiveStatus industryStatus);
 }

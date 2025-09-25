@@ -15,7 +15,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.jobFinder.be.security.JwtAuthenticationFilter;
-import com.jobFinder.be.service.AuthUserDetailsService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,7 +25,6 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
-  private final AuthUserDetailsService authUserDetailsService;
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

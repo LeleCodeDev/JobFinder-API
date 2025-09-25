@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +29,7 @@ public class IndustryController {
   private final IndustryService industryService;
 
   @GetMapping
+  @PreAuthorize("permitAll()")
   public ResponseEntity<WebResponse<List<IndustryResponse>>> getAllIndustries() {
     List<IndustryResponse> industries = industryService.getAll();
     WebResponse<List<IndustryResponse>> response = WebResponse.success("All industries successfully fetched",
@@ -55,12 +55,19 @@ public class IndustryController {
     return ResponseEntity.ok(response);
   }
 
-  @DeleteMapping("/{id}")
+  @PutMapping("/{id}/deactivate")
   @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
-  public ResponseEntity<WebResponse<Void>> deleteIndustry(@PathVariable Long id) {
-    industryService.delete(id);
-    WebResponse<Void> response = WebResponse.success("Industry deleted successfully");
+  public ResponseEntity<WebResponse<IndustryResponse>> deactivateIndustry(@PathVariable Long id) {
+    IndustryResponse industry = industryService.deactivate(id);
+    WebResponse<IndustryResponse> response = WebResponse.success("Industry deactivated successfully", industry);
     return ResponseEntity.ok(response);
   }
 
+  @PutMapping("/{id}/activate")
+  @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
+  public ResponseEntity<WebResponse<IndustryResponse>> activateIndustry(@PathVariable Long id) {
+    IndustryResponse industry = industryService.activate(id);
+    WebResponse<IndustryResponse> response = WebResponse.success("Industry activated successfully", industry);
+    return ResponseEntity.ok(response);
+  }
 }
