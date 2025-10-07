@@ -18,7 +18,6 @@ import com.jobFinder.be.dto.jobCategory.JobCategoryRequest;
 import com.jobFinder.be.dto.jobCategory.JobCategoryResponse;
 import com.jobFinder.be.service.JobCategoryService;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -40,7 +39,7 @@ public class JobCategoryController {
   @PostMapping
   @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
   public ResponseEntity<WebResponse<JobCategoryResponse>> createJobCategory(
-      @RequestBody @Valid JobCategoryRequest request) {
+      @RequestBody JobCategoryRequest request) {
     JobCategoryResponse jobCategory = jobCategoryService.create(request);
     WebResponse<JobCategoryResponse> response = WebResponse.success("Job category created successfully", jobCategory);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -49,7 +48,7 @@ public class JobCategoryController {
   @PutMapping("/{id}")
   @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
   public ResponseEntity<WebResponse<JobCategoryResponse>> updateJobCategory(@PathVariable Long id,
-      @RequestBody @Valid JobCategoryRequest request) {
+      @RequestBody JobCategoryRequest request) {
 
     JobCategoryResponse jobCategory = jobCategoryService.update(id, request);
     WebResponse<JobCategoryResponse> response = WebResponse.success("Job category updated successfully", jobCategory);

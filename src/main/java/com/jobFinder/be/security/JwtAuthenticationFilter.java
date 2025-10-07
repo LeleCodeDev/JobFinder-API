@@ -9,10 +9,9 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jobFinder.be.dto.WebResponse;
 import com.jobFinder.be.util.JwtUtil;
 
+import io.micrometer.common.lang.NonNull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,38 +30,56 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     String bearerToken = request.getHeader("Authorization");
 
     if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-      return bearerToken.substring(7);
+      String token = bearerToken.substring(7);
+
+      if (!token.isBlank()) {
+        return token;
+      }
     }
 
     return null;
   }
 
   @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-      throws ServletException, IOException {
+  protected void doFilterInternal(
+      @NonNull HttpServletRequest request,
+      @NonNull HttpServletResponse response,
+      @NonNull FilterChain filterChain) throws ServletException, IOException {
+
     String token = extractToken(request);
 
-    if (token != null) {
+    if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
       try {
         UserDetails userDetails = jwtUtil.validateAndCheckToken(token);
 
-        var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        if (userDetails != null) {
+          UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+              userDetails,
+              null,
+              userDetails.getAuthorities());
 
-        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+          authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+          SecurityContextHolder.getContext().setAuthentication(authentication);
+          log.debug("Successfully authenticated user: {}", userDetails.getUsername());
+        }
+
       } catch (Exception e) {
-        log.warn("Invalid auth token: {}", e.getMessage());
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
+        log.warn("JWT validation failed for request to {}: {}", request.getRequestURI(), e.getMessage());
 
-        WebResponse<String> errorResponse = WebResponse.error("Unauthorized");
-        response.getWriter().write(new ObjectMapper().writeValueAsString(errorResponse));
-        return;
+        SecurityContextHolder.clearContext();
       }
     }
 
     filterChain.doFilter(request, response);
   }
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    String path = request.getRequestURI();
+
+    return path.startsWith("/api/auth/");
+  }
+
 }

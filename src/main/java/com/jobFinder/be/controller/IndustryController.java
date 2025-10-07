@@ -18,7 +18,6 @@ import com.jobFinder.be.dto.industry.IndustryRequest;
 import com.jobFinder.be.dto.industry.IndustryResponse;
 import com.jobFinder.be.service.IndustryService;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -39,7 +38,7 @@ public class IndustryController {
 
   @PostMapping
   @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
-  public ResponseEntity<WebResponse<IndustryResponse>> createIndustry(@RequestBody @Valid IndustryRequest request) {
+  public ResponseEntity<WebResponse<IndustryResponse>> createIndustry(@RequestBody IndustryRequest request) {
     IndustryResponse industry = industryService.create(request);
     WebResponse<IndustryResponse> response = WebResponse.success("Industry created successfully", industry);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -48,7 +47,7 @@ public class IndustryController {
   @PutMapping("/{id}")
   @PreAuthorize("hasAnyRole('SUPERADMIN', 'ADMIN')")
   public ResponseEntity<WebResponse<IndustryResponse>> updateIndustry(@PathVariable Long id,
-      @RequestBody @Valid IndustryRequest request) {
+      @RequestBody IndustryRequest request) {
 
     IndustryResponse industry = industryService.update(id, request);
     WebResponse<IndustryResponse> response = WebResponse.success("Industry updated successfully", industry);

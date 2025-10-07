@@ -17,6 +17,11 @@ import lombok.extern.slf4j.Slf4j;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+  @ExceptionHandler(ValidationException.class)
+  public ResponseEntity<WebResponse<Map<String, String>>> handleValidationException(ValidationException exception) {
+    WebResponse<Map<String, String>> response = WebResponse.error("Validation failed", exception.getErrors());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+  }
 
   @ExceptionHandler(InactiveResourceException.class)
   public ResponseEntity<WebResponse<String>> handleInactiveResourceException(InactiveResourceException exception) {

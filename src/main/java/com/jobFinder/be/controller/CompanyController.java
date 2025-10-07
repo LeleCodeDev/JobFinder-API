@@ -19,7 +19,6 @@ import com.jobFinder.be.dto.company.CompanyResponse;
 import com.jobFinder.be.dto.company.PasswordCompanyRequest;
 import com.jobFinder.be.service.CompanyService;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -31,7 +30,7 @@ public class CompanyController {
 
   @PostMapping
   @PreAuthorize("hasRole('USER')")
-  public ResponseEntity<WebResponse<CompanyResponse>> createCompany(@RequestBody @Valid CompanyRequest request) {
+  public ResponseEntity<WebResponse<CompanyResponse>> createCompany(@RequestBody CompanyRequest request) {
     CompanyResponse company = companyService.create(request);
     WebResponse<CompanyResponse> response = WebResponse.success("Company successfully created", company);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -40,7 +39,7 @@ public class CompanyController {
   @PutMapping("/{id}")
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<WebResponse<CompanyResponse>> updateCompany(@PathVariable Long id,
-      @RequestBody @Valid CompanyRequest request) {
+      @RequestBody CompanyRequest request) {
     CompanyResponse company = companyService.update(id, request);
     WebResponse<CompanyResponse> response = WebResponse.success("Company successfully updated", company);
     return ResponseEntity.ok(response);
@@ -66,8 +65,8 @@ public class CompanyController {
   @PutMapping("/{id}/deactivate")
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<WebResponse<CompanyResponse>> deactivateCompany(@PathVariable Long id,
-      @RequestBody @Valid PasswordCompanyRequest request) {
-    CompanyResponse company = companyService.deactivate(id, request.getPassword());
+      @RequestBody PasswordCompanyRequest request) {
+    CompanyResponse company = companyService.deactivate(id, request);
     WebResponse<CompanyResponse> response = WebResponse.success("Company successfully deactivated", company);
     return ResponseEntity.ok(response);
   }
@@ -75,8 +74,8 @@ public class CompanyController {
   @PutMapping("/{id}/activate")
   @PreAuthorize("hasRole('USER')")
   public ResponseEntity<WebResponse<CompanyResponse>> activateCompany(@PathVariable Long id,
-      @RequestBody @Valid PasswordCompanyRequest request) {
-    CompanyResponse company = companyService.activate(id, request.getPassword());
+      @RequestBody PasswordCompanyRequest request) {
+    CompanyResponse company = companyService.activate(id, request);
     WebResponse<CompanyResponse> response = WebResponse.success("Company successfully activated", company);
     return ResponseEntity.ok(response);
   }

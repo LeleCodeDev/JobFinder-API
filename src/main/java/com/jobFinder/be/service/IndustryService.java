@@ -16,6 +16,7 @@ import com.jobFinder.be.model.Industry;
 import com.jobFinder.be.model.User;
 import com.jobFinder.be.repository.IndustryRepository;
 import com.jobFinder.be.util.UserUtil;
+import com.jobFinder.be.util.ValidationUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,9 +27,12 @@ public class IndustryService {
   private final IndustryRepository industryRepository;
   private final IndustryMapper industryMapper;
   private final UserUtil userUtil;
+  private final ValidationUtil validationUtil;
 
   @Transactional
   public IndustryResponse create(IndustryRequest request) {
+    validationUtil.validateOrThrow(request);
+
     industryRepository.findByName(request.getName()).ifPresent(i -> {
       throw new ResourceAlreadyTakenException("Industry name already exist");
     });
@@ -55,6 +59,8 @@ public class IndustryService {
 
   @Transactional
   public IndustryResponse update(Long id, IndustryRequest request) {
+    validationUtil.validateOrThrow(request);
+
     Industry industry = industryRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Industry not found with ID: " + id));
 

@@ -16,6 +16,7 @@ import com.jobFinder.be.model.JobCategory;
 import com.jobFinder.be.model.User;
 import com.jobFinder.be.repository.JobCategoryRepository;
 import com.jobFinder.be.util.UserUtil;
+import com.jobFinder.be.util.ValidationUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,9 +27,12 @@ public class JobCategoryService {
   private final JobCategoryRepository jobCategoryRepository;
   private final JobCategoryMapper jobCategoryMapper;
   private final UserUtil userUtil;
+  private final ValidationUtil validationUtil;
 
   @Transactional
   public JobCategoryResponse create(JobCategoryRequest request) {
+    validationUtil.validateOrThrow(request);
+
     jobCategoryRepository.findByName(request.getName()).ifPresent(jc -> {
       throw new ResourceAlreadyTakenException("Job category already exists");
     });
@@ -42,6 +46,8 @@ public class JobCategoryService {
 
   @Transactional
   public JobCategoryResponse update(Long id, JobCategoryRequest request) {
+    validationUtil.validateOrThrow(request);
+
     JobCategory jobCategory = jobCategoryRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("Job category not found with ID; " + id));
 

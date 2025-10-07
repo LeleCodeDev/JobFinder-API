@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.jobFinder.be.dto.company.CompanyRequest;
 import com.jobFinder.be.dto.company.CompanyResponse;
+import com.jobFinder.be.dto.company.PasswordCompanyRequest;
 import com.jobFinder.be.enums.ActiveStatus;
 import com.jobFinder.be.enums.BusinessRole;
 import com.jobFinder.be.exception.ForbiddenException;
@@ -24,6 +25,7 @@ import com.jobFinder.be.repository.CompanyRepository;
 import com.jobFinder.be.repository.EmployeeRepository;
 import com.jobFinder.be.repository.IndustryRepository;
 import com.jobFinder.be.util.UserUtil;
+import com.jobFinder.be.util.ValidationUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,9 +39,12 @@ public class CompanyService {
   private final EmployeeRepository employeeRepository;
   private final CompanyMapper companyMapper;
   private final PasswordEncoder passwordEncoder;
+  private final ValidationUtil validationUtil;
 
   @Transactional
   public CompanyResponse create(CompanyRequest request) {
+    validationUtil.validateOrThrow(request);
+
     companyRepository.findByName(request.getName()).ifPresent(c -> {
       throw new ResourceAlreadyTakenException("Company name already exists");
     });
@@ -66,6 +71,8 @@ public class CompanyService {
 
   @Transactional
   public CompanyResponse update(Long id, CompanyRequest request) {
+    validationUtil.validateOrThrow(request);
+
     User user = userUtil.getAuthenticatedUser();
 
     Company company = companyRepository.findById(id)
@@ -140,10 +147,12 @@ public class CompanyService {
   }
 
   @Transactional
-  public CompanyResponse deactivate(Long id, String password) {
+  public CompanyResponse deactivate(Long id, PasswordCompanyRequest request) {
+    validationUtil.validateOrThrow(request);
+
     User user = userUtil.getAuthenticatedUser();
 
-    if (!passwordEncoder.matches(password, user.getPassword())) {
+    if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
       throw new ForbiddenException("Invalid password");
     }
 
@@ -170,10 +179,12 @@ public class CompanyService {
   }
 
   @Transactional
-  public CompanyResponse activate(Long id, String password) {
+  public CompanyResponse activate(Long id, PasswordCompanyRequest request) {
+    validationUtil.validateOrThrow(request);
+
     User user = userUtil.getAuthenticatedUser();
 
-    if (!passwordEncoder.matches(password, user.getPassword())) {
+    if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
       throw new ForbiddenException("Invalid password");
     }
 
