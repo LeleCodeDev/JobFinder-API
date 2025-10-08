@@ -5,6 +5,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import com.jobFinder.be.enums.ActiveStatus;
 import com.jobFinder.be.model.Industry;
 import com.jobFinder.be.repository.IndustryRepository;
 
@@ -46,6 +47,7 @@ public class IndustrySeeder implements CommandLineRunner {
       for (String name : industryNames) {
         Industry industry = Industry.builder()
             .name(name)
+            .status(ActiveStatus.ACTIVE)
             .build();
         industryRepository.save(industry);
       }
